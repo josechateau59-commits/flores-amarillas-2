@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Flores Amarillas para Ti 💛</title>
+  <meta property="og:title" content="¡Un detalle especial para ti! 🌼✨">
+  <meta property="og:description" content="Toca aquí para ver tus flores amarillas y escuchar una canción especial.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=600">
+  <meta property="og:type" content="website">
+
+  <!-- Tipografías elegantes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at center, #fffde7 0%, #fff59d 50%, #fbc02d 100%);
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+      padding: 20px;
+    }
+
+    /* Fondo de destellos y partículas */
+    #canvas-particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Tarjeta principal estilo cristal/romántico */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border-radius: 28px;
+      padding: 40px 30px;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(245, 127, 23, 0.25),
+                  0 0 20px rgba(255, 255, 255, 0.8) inset;
+      border: 2px solid rgba(255, 235, 59, 0.6);
+      z-index: 10;
+      position: relative;
+      animation: fadeIn 1.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.8rem;
+      color: #f57f17;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    /* Ilustración SVG del Ramo de Girasoles */
+    .bouquet-svg {
+      width: 160px;
+      height: 160px;
+      margin: 10px auto 20px auto;
+      filter: drop-shadow(0 8px 15px rgba(251, 192, 45, 0.4));
+      animation: floatBouquet 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatBouquet {
+      0% { transform: translateY(0) rotate(-2deg); }
+      100% { transform: translateY(-10px) rotate(2deg); }
+    }
+
+    /* Carta con efecto de máquina de escribir */
+    .message-container {
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .message-text {
+      color: #4e342e;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    /* Botón interactivo principal */
+    .btn-play {
+      background: linear-gradient(135deg, #fbc02d, #f57f17);
+      color: #ffffff;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(245, 127, 23, 0.4);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      outline: none;
+    }
+
+    .btn-play:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 25px rgba(245, 127, 23, 0.6);
+      background: linear-gradient(135deg, #fdd835, #f57f17);
+    }
+
+    .btn-play:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* Botón de Corazón / Sorpresa */
+    .heart-btn {
+      margin-top: 20px;
+      background: rgba(255, 235, 59, 0.3);
+      border: 1px solid #fbc02d;
+      color: #f57f17;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .heart-btn:hover {
+      background: rgba(255, 235, 59, 0.6);
+    }
+
+    /* Flores y Pétalos Flotantes */
+    .falling-item {
+      position: fixed;
+      top: -10%;
+      pointer-events: none;
+      z-index: 2;
+      user-select: none;
+      animation: fallAnimation linear infinite;
+    }
+
+    @keyframes fallAnimation {
+      0% {
+        top: -10%;
+        transform: translateX(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        top: 105%;
+        transform: translateX(120px) rotate(720deg);
+        opacity: 0.2;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas para partículas luminosas -->
+  <canvas id="canvas-particles"></canvas>
+
+  <div class="glass-card">
+    <h1 class="title">Él la estaba esperando con flores amarillas... 🌼✨</h1>
+
+    <!-- Ramo de Girasoles SVG Animado -->
+    <svg class="bouquet-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- Tallos -->
+      <path d="M90,120 Q85,160 70,190" stroke="#558b2f" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M100,120 Q100,160 100,190" stroke="#33691e" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M110,120 Q115,160 130,190" stroke="#558b2f" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <!-- Lazo -->
+      <path d="M85,155 Q100,165 115,155 Q100,145 85,155 Z" fill="#fff59d" stroke="#fbc02d" stroke-width="2"/>
+      
+      <!-- Girasol Izquierda -->
+      <g transform="translate(65, 85)">
+        <circle cx="0" cy="0" r="32" fill="#fbc02d" />
+        <circle cx="0" cy="0" r="26" fill="#fdd835" />
+        <!-- Pétalos -->
+        <path d="M0,-35 L5,-20 L0,-15 L-5,-20 Z" fill="#ffee58" />
+        <path d="M0,35 L5,20 L0,15 L-5,20 Z" fill="#ffee58" />
+        <path d="M-35,0 L-20,5 L-15,0 L-20,-5 Z" fill="#ffee58" />
+        <path d="M35,0 L20,5 L15,0 L20,-5 Z" fill="#ffee58" />
+        <circle cx="0" cy="0" r="14" fill="#3e2723" />
+      </g>
+
+      <!-- Girasol Derecha -->
+      <g transform="translate(135, 85)">
+        <circle cx="0" cy="0" r="32" fill="#fbc02d" />
+        <circle cx="0" cy="0" r="26" fill="#fdd835" />
+        <circle cx="0" cy="0" r="14" fill="#3e2723" />
+      </g>
+
+      <!-- Girasol Centro -->
+      <g transform="translate(100, 65)">
+        <circle cx="0" cy="0" r="40" fill="#fbc02d" />
+        <circle cx="0" cy="0" r="32" fill="#ffee58" />
+        <circle cx="0" cy="0" r="18" fill="#4e342e" />
+      </g>
+    </svg>
+
+    <div class="message-container">
+      <p class="message-text" id="typewriter"></p>
+    </div>
+
+    <button class="btn-play" id="playBtn" onclick="toggleMusic()">
+      <span id="btnIcon">▶</span>
+      <span id="btnText">Escuchar Flores Amarillas</span>
+    </button>
+
+    <div>
+      <button class="heart-btn" onclick="burstHearts()">💛 Haz clic para un abrazo virtual 💛</button>
+    </div>
+  </div>
+
+  <!-- Audio de Floricienta - Flores Amarillas -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="https://ia801503.us.archive.org/15/items/floricienta-flores-amarillas/Floricienta%20-%20Flores%20Amarillas.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // Configuración de la música
+    const music = document.getElementById('bg-music');
+    const playBtn = document.getElementById('playBtn');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnText = document.getElementById('btnText');
+    let isPlaying = false;
+
+    function toggleMusic() {
+      if (!isPlaying) {
+        music.play().then(() => {
+          isPlaying = true;
+          btnIcon.innerText = '⏸';
+          btnText.innerText = 'Pausar música';
+          burstHearts();
+        }).catch(err => {
+          console.log("Error al reproducir audio:", err);
+        });
+      } else {
+        music.pause();
+        isPlaying = false;
+        btnIcon.innerText = '▶';
+        btnText.innerText = 'Escuchar Flores Amarillas';
+      }
+    }
+
+    // Efecto de Máquina de Escribir para la carta
+    const textToType = "Te envío estas flores amarillas para recordarte lo especial que eres para mí y para sacarte una hermosa sonrisa hoy. 💛✨";
+    let index = 0;
+    const typewriterElement = document.getElementById('typewriter');
+
+    function typeWriter() {
+      if (index < textToType.length) {
+        typewriterElement.innerHTML += textToType.charAt(index);
+        index++;
+        setTimeout(typeWriter, 45);
+      }
+    }
+
+    window.onload = () => {
+      typeWriter();
+      startFallingItems();
+    };
+
+    // Generador de flores y corazones flotantes
+    const items = ['🌻', '🌼', '💛', '✨', '🌸'];
+    function createFallingItem() {
+      const item = document.createElement('div');
+      item.classList.add('falling-item');
+      item.innerText = items[Math.floor(Math.random() * items.length)];
+      item.style.left = Math.random() * 100 + 'vw';
+      item.style.animationDuration = Math.random() * 3 + 3 + 's';
+      item.style.fontSize = Math.random() * 1.2 + 1.2 + 'rem';
+      
+      document.body.appendChild(item);
+
+      setTimeout(() => {
+        item.remove();
+      }, 6000);
+    }
+
+    function startFallingItems() {
+      setInterval(createFallingItem, 350);
+    }
+
+    // Explosión de Corazones al hacer clic
+    function burstHearts() {
+      for (let i = 0; i < 15; i++) {
+        setTimeout(createFallingItem, i * 50);
+      }
+    }
+
+    // Partículas de luz de fondo (Canvas)
+    const canvas = document.getElementById('canvas-particles');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const particles = Array.from({ length: 40 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 3 + 1,
+      alpha: Math.random(),
+      speed: Math.random() * 0.5 + 0.2
+    }));
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 235, 59, ${p.alpha})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#fff59d';
+        ctx.fill();
+
+        p.y -= p.speed;
+        if (p.y < 0) p.y = canvas.height;
+      });
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  </script>
+</body>
+</html>
